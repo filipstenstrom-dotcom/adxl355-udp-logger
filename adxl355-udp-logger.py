@@ -4,7 +4,7 @@ import struct
 import time
 import csv
 from pathlib import Path
-
+# pip freeze > requirements.txt
 # ======= KONFIG =======
 LISTEN_IP   = "0.0.0.0"
 LISTEN_PORT = 5000
@@ -54,14 +54,15 @@ def main():
             # Spara rått binärt exakt som det kom (alltid bra att ha)
             fbin.write(data)
 
-            # Tolka endast paket som matchar exakt frame-storleken
-            if len(data) != FRAME_SIZE:
-                print(f"Skip: packet size {len(data)} from {addr}, expected {FRAME_SIZE}")
+            if len(data) < FRAME_SIZE:
+                print(f"Skip: packet too small {len(data)} from {addr}")
                 continue
 
-            magic, seq, t_us, *a = struct.unpack(STRUCT_FMT, data)
+            data60 = data[:FRAME_SIZE]
+            magic, seq, t_us, *a = struct.unpack(STRUCT_FMT, data60)
+
             if magic != MAGIC_OK:
-                print(f"Skip: bad magic 0x{magic:08X} from {addr}")
+                print(f"Bad magic 0x{magic:08X} (len={len(data)}) first4={data60[:4].hex()}")
                 continue
 
             # räkna tappade paket (UDP kan tappa)
@@ -76,7 +77,7 @@ def main():
 
             now = time.time() - t0
             writer.writerow([f"{now:.6f}", seq, t_us] + a)
-
+            fcsv.flush()
             total += 1
             if total % 1000 == 0:
                 print(f"Frames: {total}, dropped(est): {dropped}, last seq: {last_seq}")
