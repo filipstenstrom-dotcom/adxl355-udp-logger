@@ -11,12 +11,12 @@ import numpy as np
 # =======================
 
 # Input: .bin (rå frames) eller .csv (från din logger)
-INPUT_PATH   = Path(r"G:\My Drive\Project SHM\Data\frames_20260127_112812.csv")
+INPUT_PATH   = Path(r"G:/My Drive/Project SHM/Data/Verification/frames_20260228_132738.csv")
 INPUT_FORMAT = "auto"   # "auto" | "bin" | "csv"
 
 # Output: "csv" för debug, "npz" för pipeline/analys
 OUTPUT_FORMAT = "csv"   # "csv" | "npz"
-OUTPUT_PATH   = Path(r"G:\My Drive\Project SHM\Data\mega_dick.csv")    # None => auto: samma namn, nytt suffix
+OUTPUT_PATH   = Path(r"G:/My Drive/Project SHM/Data/Verification/mega_dick.csv")    # None => auto: samma namn, nytt suffix
 
 # Sensor-setup
 NUM_SENSORS = 2          # 2 nu, 4 senare
