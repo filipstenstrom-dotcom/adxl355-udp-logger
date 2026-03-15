@@ -9,7 +9,7 @@ import glob
 # SETTINGS
 # =======================
 
-CAL_JSON = Path(r"G:/My Drive/Project SHM/Data/Info/cal_25C_3x3_lstsq.json")
+CAL_JSON = Path(r"G:/My Drive/Project SHM/Data/Info/cal_25C_3x3.json")
 
 # Välj EN av dessa:
 
@@ -18,7 +18,7 @@ CAL_JSON = Path(r"G:/My Drive/Project SHM/Data/Info/cal_25C_3x3_lstsq.json")
 INPUT_GLOB = None
 
 # 2️⃣ Eller lista manuellt:
-INPUT_FILES = [r"G:/My Drive/Project SHM/Data/Verification/frames_20260228_130822.csv"]
+INPUT_FILES = [r"G:/My Drive/Project SHM/Data/frames_20260308_214046_cap0000.csv"]
 #INPUT_FILES = None#[r"...file1.csv", r"...file2.csv"]
 
 TIME_COLUMN = "recv_time_s"
@@ -30,9 +30,9 @@ AXES_PER_SENSOR = 3
 
 LSB_PER_G = 256000.0
 
-START_OFFSET_S = 4
+START_OFFSET_S = 1
 
-OUT_DIR = Path("G:/My Drive/Project SHM/Data/Info")
+OUT_DIR = Path("G:/My Drive/Project SHM/Data")
 WRITE_REPORT_CSV = True
 
 # =======================

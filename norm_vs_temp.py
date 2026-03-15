@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # SETTINGS
 # =======================
 
-INPUT_GLOB = r"G:/My Drive/Project SHM/Data/Temp_verification/*.csv"
+INPUT_GLOB = r"G:/My Drive/Project SHM/Data/Temp_verification/Calibrated_temp/*.csv"
 OUT_DIR = Path("G:/My Drive/Project SHM/Data/Info/Temp")
 
 OUT_DIR.mkdir(parents=True, exist_ok=True)
