@@ -4,20 +4,19 @@ import struct
 import time
 import csv
 from pathlib import Path
-# pip freeze > requirements.txt
+
 # ======= KONFIG =======
 LISTEN_IP   = "0.0.0.0"
 LISTEN_PORT = 5000
 
-# STM32 frame_t layout (little-endian):
-# magic u32, seq u32, t_us u32, a[12] i32
-STRUCT_FMT = "<III" + ("i" * 12)
+# frame_t:
+# u32 magic, u32 seq, u32 t_us, i32 a[12], i16 temp[4]
+STRUCT_FMT = "<III" + ("i" * 12) + ("h" * 4)
 FRAME_SIZE = struct.calcsize(STRUCT_FMT)
 MAGIC_OK   = 0xA55A5AA5
 
 OUT_DIR = Path("udp_capture")
 OUT_DIR.mkdir(exist_ok=True)
-
 # =======================
 
 def main():
@@ -31,7 +30,6 @@ def main():
 
     print(f"Listening UDP on {LISTEN_IP}:{LISTEN_PORT}")
     print(f"Expecting frame size: {FRAME_SIZE} bytes")
-    print(f"Writing: {bin_path} and {csv_path}")
 
     last_seq = None
     total = 0
@@ -39,7 +37,12 @@ def main():
 
     with open(bin_path, "wb") as fbin, open(csv_path, "w", newline="") as fcsv:
         writer = csv.writer(fcsv)
-        header = ["recv_time_s", "seq", "t_us"] + [f"a{i}" for i in range(12)]
+
+        header = (
+            ["recv_time_s", "seq", "t_us"]
+            + [f"a{i}" for i in range(12)]
+            + [f"temp{i}_C" for i in range(4)]
+        )
         writer.writerow(header)
 
         t0 = time.time()
@@ -48,36 +51,39 @@ def main():
             try:
                 data, addr = sock.recvfrom(2048)
             except socket.timeout:
-                # ingen data just nu, fortsätt
                 continue
 
-            # Spara rått binärt exakt som det kom (alltid bra att ha)
             fbin.write(data)
 
             if len(data) < FRAME_SIZE:
-                print(f"Skip: packet too small {len(data)} from {addr}")
                 continue
 
-            data60 = data[:FRAME_SIZE]
-            magic, seq, t_us, *a = struct.unpack(STRUCT_FMT, data60)
+            unpacked = struct.unpack(STRUCT_FMT, data[:FRAME_SIZE])
+
+            magic = unpacked[0]
+            seq   = unpacked[1]
+            t_us  = unpacked[2]
+            a     = list(unpacked[3:15])
+            temp_raw = list(unpacked[15:19])
 
             if magic != MAGIC_OK:
-                print(f"Bad magic 0x{magic:08X} (len={len(data)}) first4={data60[:4].hex()}")
                 continue
 
-            # räkna tappade paket (UDP kan tappa)
+            # konvertera centi-degC -> °C
+            temp_C = [tr / 100.0 for tr in temp_raw]
+
             if last_seq is not None and seq != (last_seq + 1) & 0xFFFFFFFF:
-                # konservativt: räkna som drop om hopp framåt
                 if seq > last_seq:
                     dropped += (seq - last_seq - 1)
-                else:
-                    # wrap-around eller omstart; räkna inte aggressivt
-                    pass
             last_seq = seq
 
             now = time.time() - t0
-            writer.writerow([f"{now:.6f}", seq, t_us] + a)
-            fcsv.flush()
+            writer.writerow(
+                [f"{now:.6f}", seq, t_us] +
+                a +
+                [f"{t:.2f}" for t in temp_C]
+            )
+
             total += 1
             if total % 1000 == 0:
                 print(f"Frames: {total}, dropped(est): {dropped}, last seq: {last_seq}")
