@@ -15,10 +15,10 @@ TEMP_MODEL_JSON = Path(r"G:/My Drive/Project SHM/Data/Info/TempCalibrationOut/te
 # - temp_norm_model.json  (alpha_per_C)
 # - temp_bias_fit.json    (k_g_per_C + c_g)
 
-INPUT_GLOB = r"G:/My Drive/Project SHM/Data/Freq/*.csv"
+INPUT_GLOB = r"G:/My Drive/Project SHM/Data/Impact/2026-04-03/*.csv"
 INPUT_FILES = None
 
-OUT_DIR = Path(r"G:/My Drive/Project SHM/Data/Freq")
+OUT_DIR = Path(r"G:/My Drive/Project SHM/Data/Impact/2026-04-03")
 
 TIME_COLUMN = "recv_time_s"
 A_PREFIX = "a"
@@ -30,8 +30,8 @@ LSB_PER_G = 256000.0
 TEMP_COLS = ["temp0_C", "temp1_C", "temp2_C", "temp3_C"]
 
 WRITE_RAW_G_COLUMNS = False
-WRITE_BASE_CAL_COLUMNS = True
-WRITE_TEMP_COLUMNS = True
+WRITE_BASE_CAL_COLUMNS = False
+WRITE_TEMP_COLUMNS = False
 
 
 # =======================
